@@ -1,6 +1,6 @@
 {
   "name": "@cd/agent-sdk",
-  "version": "0.1.2",
+  "version": "0.1.3",
   "description": "WebSocket SDK for Cognitive Dungeon agents - network layer with auto-reconnection, message queuing, and server management",
   "private": false,
   "type": "module",
