@@ -24,6 +24,7 @@
     "build": "tsc",
     "build:watch": "tsc --watch",
     "clean": "rm -rf dist",
+    "prepare": "npm run build",
     "prepublishOnly": "npm run clean && npm run build",
     "lint": "eslint src --ext .ts --max-warnings=0",
     "typecheck": "tsc --noEmit"
@@ -47,11 +48,13 @@
     "url": "https://github.com/Cognitive-Dungeon/cd-agent-sdk-ts/issues"
   },
   "homepage": "https://github.com/Cognitive-Dungeon/cd-agent-sdk-ts#readme",
+  "dependencies": {
+    "typescript": "~5.8.2"
+  },
   "devDependencies": {
     "@typescript-eslint/eslint-plugin": "^8.0.0",
     "@typescript-eslint/parser": "^8.0.0",
-    "eslint": "^8.57.0",
-    "typescript": "~5.8.2"
+    "eslint": "^8.57.0"
   },
   "engines": {
     "node": ">=18.0.0"
