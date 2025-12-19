@@ -81,7 +81,7 @@ export interface ClientToServerTextPayload {
  * Payload для кастомных команд
  */
 export interface ClientToServerCustomPayload {
-  [key: string]: any;
+  [key: string]: unknown;
 }
 
 // ============================================================================

@@ -72,8 +72,7 @@ export class WebSocketService {
   private connectionTimeoutId: number | null = null;
 
   // Event listeners
-  private listeners: Map<WebSocketEvent, Set<WebSocketEventListener<any>>> =
-    new Map();
+  private listeners: Map<WebSocketEvent, Set<WebSocketEventListener<unknown>>> = new Map();
 
   // Flags
   private isManualDisconnect: boolean = false;
@@ -121,10 +120,7 @@ export class WebSocketService {
       throw new Error("WebSocketService has been destroyed");
     }
 
-    if (
-      this.state === WebSocketState.CONNECTING ||
-      this.state === WebSocketState.CONNECTED
-    ) {
+    if (this.state === WebSocketState.CONNECTING || this.state === WebSocketState.CONNECTED) {
       this.log("Already connected or connecting");
       return;
     }
@@ -151,10 +147,7 @@ export class WebSocketService {
   /**
    * Отправка команды на сервер
    */
-  public send(
-    command: ClientToServerCommand,
-    options: SendOptions = {},
-  ): SendResult {
+  public send(command: ClientToServerCommand, options: SendOptions = {}): SendResult {
     const timestamp = Date.now();
 
     // Проверка состояния соединения
@@ -187,7 +180,9 @@ export class WebSocketService {
 
     try {
       const serialized = serializeClientCommand(command);
-      this.socket!.send(serialized);
+      if (this.socket) {
+        this.socket.send(serialized);
+      }
 
       // Обновляем метрики
       this.metrics.recordMessageSent();
@@ -212,8 +207,7 @@ export class WebSocketService {
       };
     } catch (error) {
       this.metrics.recordError();
-      const errorMessage =
-        error instanceof Error ? error.message : String(error);
+      const errorMessage = error instanceof Error ? error.message : String(error);
 
       this.emit(WebSocketEvent.ERROR, {
         type: "send",
@@ -223,9 +217,7 @@ export class WebSocketService {
       } as ErrorEventData);
 
       if (options.onError) {
-        options.onError(
-          error instanceof Error ? error : new Error(errorMessage),
-        );
+        options.onError(error instanceof Error ? error : new Error(errorMessage));
       }
 
       return {
@@ -251,7 +243,10 @@ export class WebSocketService {
     if (!this.listeners.has(event)) {
       this.listeners.set(event, new Set());
     }
-    this.listeners.get(event)!.add(listener);
+    const eventListeners = this.listeners.get(event);
+    if (eventListeners) {
+      eventListeners.add(listener);
+    }
   }
 
   /**
@@ -276,9 +271,9 @@ export class WebSocketService {
   ): void {
     const onceWrapper = (data: WebSocketEventDataMap[E]) => {
       listener(data);
-      this.off(event, onceWrapper as any);
+      this.off(event, onceWrapper);
     };
-    this.on(event, onceWrapper as any);
+    this.on(event, onceWrapper);
   }
 
   // ============================================================================
@@ -429,26 +424,39 @@ export class WebSocketService {
     this.metrics.recordMessageReceived();
 
     try {
-      const data = JSON.parse(event.data);
+      const rawData = event.data as string;
+      const data: unknown = JSON.parse(rawData);
 
       // Обработка heartbeat ответа
-      if (data.type === "PONG") {
-        this.heartbeat.handlePong();
-        return;
+      if (typeof data === "object" && data !== null && "type" in data) {
+        const messageData = data as { type: string };
+        if (messageData.type === "PONG") {
+          this.heartbeat.handlePong();
+          return;
+        }
+
+        this.emit(WebSocketEvent.MESSAGE, {
+          data,
+          timestamp,
+          raw: rawData,
+        } as MessageEventData);
+
+        this.log("Message received:", messageData.type || "unknown");
+      } else {
+        this.emit(WebSocketEvent.MESSAGE, {
+          data,
+          timestamp,
+          raw: rawData,
+        } as MessageEventData);
+
+        this.log("Message received: unknown");
       }
-
-      this.emit(WebSocketEvent.MESSAGE, {
-        data,
-        timestamp,
-        raw: event.data,
-      } as MessageEventData);
-
-      this.log("Message received:", data.type || "unknown");
     } catch (error) {
       this.metrics.recordError();
+      const errorMessage = error instanceof Error ? error.message : String(error);
       this.emit(WebSocketEvent.ERROR, {
         type: "parse",
-        message: `Failed to parse message: ${error}`,
+        message: `Failed to parse message: ${errorMessage}`,
         error: error instanceof Error ? error : undefined,
         timestamp,
       } as ErrorEventData);
@@ -557,9 +565,7 @@ export class WebSocketService {
           timestamp: Date.now(),
         } as ReconnectAttemptEventData);
 
-        this.log(
-          `Reconnecting in ${delay}ms (attempt ${attempt}/${maxAttempts})`,
-        );
+        this.log(`Reconnecting in ${delay}ms (attempt ${attempt}/${maxAttempts})`);
       },
 
       // Callback при исчерпании попыток
@@ -682,10 +688,7 @@ export class WebSocketService {
   /**
    * Вызов события
    */
-  private emit<E extends WebSocketEvent>(
-    event: E,
-    data: WebSocketEventDataMap[E],
-  ): void {
+  private emit<E extends WebSocketEvent>(event: E, data: WebSocketEventDataMap[E]): void {
     const listeners = this.listeners.get(event);
     if (listeners) {
       listeners.forEach((listener) => {
@@ -719,7 +722,7 @@ export class WebSocketService {
   /**
    * Логирование
    */
-  private log(...args: any[]): void {
+  private log(...args: unknown[]): void {
     if (this.config.debug) {
       // eslint-disable-next-line no-console
       console.log("[WebSocketService]", ...args);

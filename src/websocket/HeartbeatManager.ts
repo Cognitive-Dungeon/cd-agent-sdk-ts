@@ -230,7 +230,8 @@ export class HeartbeatManager {
         this.handleHeartbeatTimeout();
       }, this.config.timeout);
     } catch (error) {
-      this.log(`Error sending ping: ${error}`);
+      const errorMessage = error instanceof Error ? error.message : String(error);
+      this.log(`Error sending ping: ${errorMessage}`);
     }
   }
 

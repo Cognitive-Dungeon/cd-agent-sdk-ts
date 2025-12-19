@@ -110,7 +110,7 @@ export interface WebSocketConfig {
 /**
  * Слушатель событий WebSocket сервиса
  */
-export type WebSocketEventListener<T = any> = (data: T) => void;
+export type WebSocketEventListener<T = unknown> = (data: T) => void;
 
 /**
  * Данные события подключения
@@ -141,7 +141,7 @@ export interface DisconnectedEventData {
 /**
  * Данные события сообщения
  */
-export interface MessageEventData<T = any> {
+export interface MessageEventData<T = unknown> {
   /** Содержимое сообщения */
   data: T;
   /** Время получения сообщения */
