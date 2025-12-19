@@ -6,9 +6,13 @@
  * - ConnectionMetrics - сбор метрик
  * - HeartbeatManager - heartbeat пинги
  * - ReconnectionManager - переподключение
+ *
+ * Поддерживает как браузерное, так и Node.js окружение через isomorphic-ws.
  */
 
 import { ClientToServerCommand, serializeClientCommand } from "./protocol";
+import WebSocket from "isomorphic-ws";
+
 import {
   WebSocketConfig,
   WebSocketState,
@@ -69,7 +73,7 @@ export class WebSocketService {
   private reconnection: ReconnectionManager;
 
   // Connection timeout
-  private connectionTimeoutId: number | null = null;
+  private connectionTimeoutId: ReturnType<typeof setTimeout> | null = null;
 
   // Event listeners
   // fixme:
@@ -366,17 +370,17 @@ export class WebSocketService {
       this.socket = new WebSocket(url);
 
       // Установка таймаута подключения
-      this.connectionTimeoutId = window.setTimeout(() => {
+      this.connectionTimeoutId = setTimeout(() => {
         if (this.state === WebSocketState.CONNECTING) {
           this.log("Connection timeout");
           this.handleConnectionError(DisconnectReason.TIMEOUT);
         }
       }, this.config.connectionTimeout);
 
-      this.socket.onopen = this.handleOpen.bind(this);
-      this.socket.onmessage = this.handleMessage.bind(this);
-      this.socket.onerror = this.handleError.bind(this);
-      this.socket.onclose = this.handleClose.bind(this);
+      this.socket.onopen = () => this.handleOpen();
+      this.socket.onmessage = (event) => this.handleMessage(event);
+      this.socket.onerror = () => this.handleError();
+      this.socket.onclose = (event) => this.handleClose(event);
     } catch (error) {
       this.metrics.recordError();
       this.log("Failed to create WebSocket:", error);
@@ -421,7 +425,7 @@ export class WebSocketService {
   /**
    * Обработка входящего сообщения
    */
-  private handleMessage(event: MessageEvent): void {
+  private handleMessage(event: { data: unknown }): void {
     const timestamp = Date.now();
     this.metrics.recordMessageReceived();
 
@@ -477,7 +481,7 @@ export class WebSocketService {
   /**
    * Обработка закрытия соединения
    */
-  private handleClose(event: CloseEvent): void {
+  private handleClose(event: { code: number; reason: string }): void {
     this.clearConnectionTimeout();
     this.heartbeat.stop();
 
@@ -707,6 +711,12 @@ export class WebSocketService {
    * Получение URL по умолчанию
    */
   private getDefaultUrl(): string {
+    // В Node.js окружении возвращаем дефолтный URL
+    const isBrowser = typeof window !== "undefined";
+    if (!isBrowser) {
+      return "ws://localhost:8080/ws";
+    }
+
     const protocol = window.location.protocol === "https:" ? "wss:" : "ws:";
     const isDev = window.location.port === "3000";
 

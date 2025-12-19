@@ -8,6 +8,8 @@
  * - Управление выбранным сервером
  */
 
+import WebSocket from "isomorphic-ws";
+
 // ============================================================================
 // Types
 // ============================================================================
@@ -186,8 +188,11 @@ export class ServerManager {
    * @param server - Информация о сервере
    * @returns WebSocket URL (ws:// или wss://)
    */
-  static getServerUrl(server: ServerInfo): string {
-    const protocol = window.location.protocol === "https:" ? "wss:" : "ws:";
+  static getServerUrl(server: ServerInfo, secure?: boolean): string {
+    // Если secure не указан явно, пытаемся определить по протоколу страницы (в браузере)
+    const isSecure =
+      secure ?? (typeof window !== "undefined" && window.location?.protocol === "https:");
+    const protocol = isSecure ? "wss:" : "ws:";
     return `${protocol}//${server.host}:${server.port}/ws`;
   }
 
@@ -203,9 +208,7 @@ export class ServerManager {
    * @param server - Информация о сервере
    * @returns Статус доступности
    */
-  static async checkServerAvailability(
-    server: ServerInfo
-  ): Promise<ServerStatus> {
+  static async checkServerAvailability(server: ServerInfo): Promise<ServerStatus> {
     const startTime = Date.now();
     const url = this.getServerUrl(server);
 
@@ -266,9 +269,7 @@ export class ServerManager {
    */
   static getCachedStatus(serverId: string): ServerStatus | null {
     try {
-      const cached = localStorage.getItem(
-        `${this.STATUS_CACHE_KEY}_${serverId}`
-      );
+      const cached = localStorage.getItem(`${this.STATUS_CACHE_KEY}_${serverId}`);
       if (cached) {
         const status = JSON.parse(cached) as ServerStatus;
         // Check if cache is still valid
@@ -289,10 +290,7 @@ export class ServerManager {
    */
   static cacheStatus(status: ServerStatus): void {
     try {
-      localStorage.setItem(
-        `${this.STATUS_CACHE_KEY}_${status.serverId}`,
-        JSON.stringify(status)
-      );
+      localStorage.setItem(`${this.STATUS_CACHE_KEY}_${status.serverId}`, JSON.stringify(status));
     } catch (error) {
       console.error("Failed to cache status:", error);
     }

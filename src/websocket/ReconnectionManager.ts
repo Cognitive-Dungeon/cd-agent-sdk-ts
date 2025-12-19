@@ -35,11 +35,7 @@ export type ReconnectFn = () => void;
 /**
  * Callback при начале попытки переподключения
  */
-export type OnAttemptFn = (
-  attempt: number,
-  maxAttempts: number,
-  delay: number,
-) => void;
+export type OnAttemptFn = (attempt: number, maxAttempts: number, delay: number) => void;
 
 /**
  * Callback при исчерпании попыток
@@ -98,7 +94,7 @@ export class ReconnectionManager {
   // State
   private attempts: number = 0;
   private currentDelay: number;
-  private timeoutId: number | null = null;
+  private timeoutId: ReturnType<typeof setTimeout> | null = null;
   private isScheduled: boolean = false;
 
   // Callbacks
@@ -173,14 +169,12 @@ export class ReconnectionManager {
     }
 
     // Планируем выполнение
-    this.timeoutId = window.setTimeout(() => {
+    this.timeoutId = setTimeout(() => {
       this.executeReconnect();
     }, delay);
 
     // Увеличиваем задержку для следующей попытки
-    this.currentDelay = Math.floor(
-      this.currentDelay * this.config.delayMultiplier,
-    );
+    this.currentDelay = Math.floor(this.currentDelay * this.config.delayMultiplier);
   }
 
   /**

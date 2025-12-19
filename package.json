@@ -1,6 +1,6 @@
 {
   "name": "@cd/agent-sdk",
-  "version": "0.1.3",
+  "version": "0.1.5",
   "description": "WebSocket SDK for Cognitive Dungeon agents - network layer with auto-reconnection, message queuing, and server management",
   "private": false,
   "type": "module",
@@ -49,9 +49,12 @@
   },
   "homepage": "https://github.com/Cognitive-Dungeon/cd-agent-sdk-ts#readme",
   "dependencies": {
-    "typescript": "~5.8.2"
+    "isomorphic-ws": "^5.0.0",
+    "typescript": "~5.8.2",
+    "ws": "^8.18.3"
   },
   "devDependencies": {
+    "@types/ws": "^8.18.1",
     "@typescript-eslint/eslint-plugin": "^8.0.0",
     "@typescript-eslint/parser": "^8.0.0",
     "eslint": "^8.57.0"

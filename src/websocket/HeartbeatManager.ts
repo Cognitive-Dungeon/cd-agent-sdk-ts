@@ -77,8 +77,8 @@ export class HeartbeatManager {
   private onPong: OnPongFn | null = null;
 
   // Timers
-  private intervalId: number | null = null;
-  private timeoutId: number | null = null;
+  private intervalId: ReturnType<typeof setInterval> | null = null;
+  private timeoutId: ReturnType<typeof setTimeout> | null = null;
 
   // State
   private lastPingTime: number = 0;
@@ -119,7 +119,7 @@ export class HeartbeatManager {
     this.isRunning = true;
 
     // Запускаем периодическую отправку
-    this.intervalId = window.setInterval(() => {
+    this.intervalId = setInterval(() => {
       this.sendHeartbeat();
     }, this.config.interval);
 
@@ -226,7 +226,7 @@ export class HeartbeatManager {
       this.log("Ping sent");
 
       // Устанавливаем таймаут ожидания ответа
-      this.timeoutId = window.setTimeout(() => {
+      this.timeoutId = setTimeout(() => {
         this.handleHeartbeatTimeout();
       }, this.config.timeout);
     } catch (error) {
