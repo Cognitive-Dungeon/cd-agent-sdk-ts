@@ -4,7 +4,7 @@ yarn.lock
 pnpm-lock.yaml
 
 # Build output
-dist/
+# dist/ - committed for git-based installation
 build/
 *.tsbuildinfo
 
