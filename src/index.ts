@@ -9,21 +9,17 @@
 // Core Services
 // ============================================================================
 
-export { WebSocketService } from './WebSocketService';
-export { ServerManager, DEFAULT_SERVERS } from './ServerManager';
+export { WebSocketService } from "./WebSocketService";
+export { ServerManager, DEFAULT_SERVERS } from "./ServerManager";
 
 // Protocol
-export { serializeClientCommand } from './protocol';
+export { serializeClientCommand } from "./protocol";
 
 // ============================================================================
 // Types - WebSocket Configuration & State
 // ============================================================================
 
-export {
-  WebSocketState,
-  WebSocketEvent,
-  DisconnectReason,
-} from './types';
+export { WebSocketState, WebSocketEvent, DisconnectReason } from "./types";
 
 export type {
   WebSocketConfig,
@@ -31,7 +27,7 @@ export type {
   WebSocketEventDataMap,
   SendOptions,
   SendResult,
-} from './types';
+} from "./types";
 
 // ============================================================================
 // Types - WebSocket Event Data
@@ -46,22 +42,23 @@ export type {
   StateChangeEventData,
   MessageSentEventData,
   AuthChangeEventData,
-} from './types';
+} from "./types";
 
 // ============================================================================
 // Types - Internal (re-exported for convenience)
 // ============================================================================
 
-export type {
-  QueuedMessage,
-  WebSocketMetrics,
-} from './types';
+export type { QueuedMessage, WebSocketMetrics } from "./types";
 
 // ============================================================================
 // Types - Protocol (Client-Server Commands)
 // ============================================================================
 
 export type {
+  // Common
+  Position,
+
+  // Client → Server
   ClientToServerCommand,
   ClientToServerAction,
   CommandAction,
@@ -74,16 +71,28 @@ export type {
   ClientToServerItemPayload,
   ClientToServerTextPayload,
   ClientToServerCustomPayload,
-} from './protocol';
+
+  // Server → Client
+  ServerToClientGridMeta,
+  ServerToClientTileView,
+  ServerToClientStatsView,
+  ServerToClientEntityRender,
+  ServerToClientItemView,
+  ServerToClientInventoryView,
+  ServerToClientEquipmentView,
+  ServerToClientEntityView,
+  ServerToClientLogType,
+  ServerToClientLogEntry,
+  ServerToClientUpdate,
+  ServerToClientError,
+  ServerToClientMessage,
+} from "./protocol";
 
 // ============================================================================
 // Types - Server Management
 // ============================================================================
 
-export type {
-  ServerInfo,
-  ServerStatus,
-} from './ServerManager';
+export type { ServerInfo, ServerStatus } from "./ServerManager";
 
 // ============================================================================
 // WebSocket Internal Components (optional, for advanced usage)
@@ -94,4 +103,4 @@ export {
   ConnectionMetrics,
   HeartbeatManager,
   ReconnectionManager,
-} from './websocket';
+} from "./websocket";
