@@ -72,7 +72,9 @@ export class WebSocketService {
   private connectionTimeoutId: number | null = null;
 
   // Event listeners
-  private listeners: Map<WebSocketEvent, Set<WebSocketEventListener<unknown>>> = new Map();
+  // fixme:
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  private listeners: Map<WebSocketEvent, Set<WebSocketEventListener<any>>> = new Map();
 
   // Flags
   private isManualDisconnect: boolean = false;
