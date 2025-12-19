@@ -166,7 +166,7 @@ jobs:
   notify:
     name: Notify
     runs-on: ubuntu-latest
-    needs: [publish-npm, create-github-release]
+    needs: [create-github-release]
     if: always()
 
     steps:
@@ -175,14 +175,14 @@ jobs:
         run: echo "VERSION=${GITHUB_REF#refs/tags/v}" >> $GITHUB_OUTPUT
 
       - name: Success notification
-        if: needs.publish-npm.result == 'success' && needs.create-github-release.result == 'success'
+        if: needs.create-github-release.result == 'success'
         run: |
           echo "✅ Successfully published @cd/agent-sdk@${{ steps.version.outputs.VERSION }}"
           echo "📦 npm: https://www.npmjs.com/package/@cd/agent-sdk"
           echo "🚀 GitHub Release: ${{ github.server_url }}/${{ github.repository }}/releases/tag/${{ github.ref_name }}"
 
       - name: Failure notification
-        if: needs.publish-npm.result == 'failure' || needs.create-github-release.result == 'failure'
+        if: needs.create-github-release.result == 'failure'
         run: |
           echo "❌ Release failed for version ${{ steps.version.outputs.VERSION }}"
           echo "Check the logs for details"
