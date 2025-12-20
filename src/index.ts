@@ -92,7 +92,7 @@ export type {
 // Types - Server Management
 // ============================================================================
 
-export type { ServerInfo, ServerStatus } from "./ServerManager";
+export type { ServerInfo, ServerStatus, ServerVersionInfo } from "./ServerManager";
 
 // ============================================================================
 // WebSocket Internal Components (optional, for advanced usage)

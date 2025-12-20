@@ -15,6 +15,19 @@ import WebSocket from "isomorphic-ws";
 // ============================================================================
 
 /**
+ * Информация о версии сервера
+ */
+export interface ServerVersionInfo {
+  BuildID: number;
+  BuildDate: string; // YYYY-MM-DD
+  Commit: string;
+  Branch: string;
+  CI: string;
+  Calculated: boolean;
+  Error: string;
+}
+
+/**
  * Информация о сервере
  */
 export interface ServerInfo {
@@ -176,6 +189,67 @@ export class ServerManager {
       servers[index] = { ...servers[index], ...updates };
       this.saveServers(servers);
     }
+  }
+
+  // ============================================================================
+  // HTTP / REST Endpoints
+  // ============================================================================
+
+  /**
+   * Получить HTTP URL для сервера (вспомогательный метод)
+   */
+  private static getHttpUrl(server: ServerInfo, secure?: boolean): string {
+    const isSecure =
+      secure ?? (typeof window !== "undefined" && window.location?.protocol === "https:");
+    const protocol = isSecure ? "https:" : "http:";
+    return `${protocol}//${server.host}:${server.port}`;
+  }
+
+  /**
+   * Проверить здоровье сервера через HTTP эндпоинт /health
+   *
+   * Это более легкая проверка, чем checkServerAvailability (который открывает сокет).
+   *
+   * @param server - Информация о сервере
+   * @returns true если сервер ответил 200 OK
+   */
+  static async checkHealth(server: ServerInfo): Promise<boolean> {
+    try {
+      const url = `${this.getHttpUrl(server)}/health`;
+      const response = await fetch(url, { method: "GET" });
+      return response.ok;
+    } catch (error) {
+      console.warn(`Health check failed for ${server.name}:`, error);
+      return false;
+    }
+  }
+
+  /**
+   * Получить информацию о версии сервера
+   *
+   * @param server - Информация о сервере
+   * @returns Объект с версией и информацией о билде
+   */
+  static async getServerVersion(server: ServerInfo): Promise<ServerVersionInfo> {
+    const url = `${this.getHttpUrl(server)}/version`;
+
+    const response = await fetch(url, { method: "GET" });
+    if (!response.ok) {
+      throw new Error(`Failed to fetch version: ${response.status} ${response.statusText}`);
+    }
+
+    return (await response.json()) as ServerVersionInfo;
+  }
+
+  /**
+   * Форматирует строку версии для отображения
+   */
+  static formatVersionString(info: ServerVersionInfo): string {
+    if (!info.Calculated) {
+      return `Build unknown (${info.Error || "unknown error"})`;
+    }
+    const commit = info.Commit || "unknown";
+    return `Build ${info.BuildID} (${info.BuildDate}) [${commit.substring(0, 7)}]`;
   }
 
   // ============================================================================
