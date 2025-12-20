@@ -21,10 +21,14 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: "18"
+          registry-url: "https://npm.pkg.github.com"
+          scope: "@cognitive-dungeon"
           cache: "npm"
 
       - name: Install dependencies
         run: npm ci
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Lint
         run: npm run lint
@@ -148,7 +152,7 @@ jobs:
         with:
           node-version: "18"
           registry-url: "https://npm.pkg.github.com"
-          scope: "@cd"
+          scope: "@cognitive-dungeon"
           cache: "npm"
 
       - name: Install dependencies
@@ -161,7 +165,6 @@ jobs:
         run: npm publish
         env:
           NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        continue-on-error: true
 
   notify:
     name: Notify
@@ -177,8 +180,8 @@ jobs:
       - name: Success notification
         if: needs.create-github-release.result == 'success'
         run: |
-          echo "✅ Successfully published @cd/agent-sdk@${{ steps.version.outputs.VERSION }}"
-          echo "📦 npm: https://www.npmjs.com/package/@cd/agent-sdk"
+          echo "✅ Successfully published @cognitive-dungeon/agent-sdk@${{ steps.version.outputs.VERSION }}"
+          echo "📦 npm: https://www.npmjs.com/package/@cognitive-dungeon/agent-sdk"
           echo "🚀 GitHub Release: ${{ github.server_url }}/${{ github.repository }}/releases/tag/${{ github.ref_name }}"
 
       - name: Failure notification

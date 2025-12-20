@@ -1,4 +1,4 @@
-# @cd/agent-sdk
+# @cognitive-dungeon/agent-sdk
 
 WebSocket SDK для агентов Cognitive Dungeon - изолированный пакет для управления WebSocket соединениями и серверами.
 Готовый способ взаимодействия для агентов на TypeScript.
@@ -17,11 +17,11 @@ WebSocket SDK для агентов Cognitive Dungeon - изолированны
 ### Из npm (рекомендуется)
 
 ```bash
-npm install @cd/agent-sdk
+npm install @cognitive-dungeon/agent-sdk
 # или
-yarn add @cd/agent-sdk
+yarn add @cognitive-dungeon/agent-sdk
 # или
-pnpm add @cd/agent-sdk
+pnpm add @cognitive-dungeon/agent-sdk
 ```
 
 ### Из Git репозитория

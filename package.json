@@ -1,5 +1,5 @@
 {
-  "name": "@cd/agent-sdk",
+  "name": "@cognitive-dungeon/agent-sdk",
   "version": "0.1.5",
   "description": "WebSocket SDK for Cognitive Dungeon agents - network layer with auto-reconnection, message queuing, and server management",
   "private": false,
@@ -40,9 +40,12 @@
   ],
   "author": "Cognitive Dungeon Team",
   "license": "MIT",
+  "publishConfig": {
+    "registry": "https://npm.pkg.github.com"
+  },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/Cognitive-Dungeon/cd-agent-sdk-ts"
+    "url": "https://github.com/Cognitive-Dungeon/cd-agent-sdk-ts.git"
   },
   "bugs": {
     "url": "https://github.com/Cognitive-Dungeon/cd-agent-sdk-ts/issues"
